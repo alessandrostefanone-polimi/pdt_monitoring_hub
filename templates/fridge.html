@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ fridge_id }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let pressureChart, temperatureChart;
+        let fetchInterval; // Variable to hold the interval ID
+
+        // Initialize empty datasets for pressure and temperature
+        const pressureData = { labels: [], data: [] };
+        const temperatureData = { labels: [], data: [] };
+
+        // Function to update the charts
+        function updateCharts() {
+            pressureChart.data.labels = pressureData.labels;
+            pressureChart.data.datasets[0].data = pressureData.data;
+            pressureChart.update();
+
+            temperatureChart.data.labels = temperatureData.labels;
+            temperatureChart.data.datasets[0].data = temperatureData.data;
+            temperatureChart.update();
+        }
+
+        // Function to fetch fridge data and update the charts
+        function fetchFridgeData() {
+            const fridgeId = "{{ fridge_id }}";
+            const apiUrl = `/api/${fridgeId}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const timestamp = new Date().toLocaleTimeString();
+
+                    // Convert the object to an array of values and access the first and second elements
+                    const dataValues = Object.values(data);
+
+                    // Process pressure data (first element)
+                    if (dataValues[0]) {
+                        const pressure = dataValues[0].value;
+                        pressureData.labels.push(timestamp);
+                        pressureData.data.push(pressure);
+
+                        // Keep only the latest 50 points
+                        if (pressureData.labels.length > 50) {
+                            pressureData.labels.shift();
+                            pressureData.data.shift();
+                        }
+                    }
+
+                    // Process temperature data (second element)
+                    if (dataValues[1]) {
+                        const temperature = dataValues[1].value;
+                        temperatureData.labels.push(timestamp);
+                        temperatureData.data.push(temperature);
+
+                        // Keep only the latest 50 points
+                        if (temperatureData.labels.length > 50) {
+                            temperatureData.labels.shift();
+                            temperatureData.data.shift();
+                        }
+                    }
+
+                    updateCharts();
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+
+        // Function to create the charts
+        function createCharts() {
+            const pressureCtx = document.getElementById('pressureChart').getContext('2d');
+            const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+
+            pressureChart = new Chart(pressureCtx, {
+                type: 'line',
+                data: {
+                    labels: [], // Timestamps
+                    datasets: [{
+                        label: 'Pressure (MPa)',
+                        data: [], // Pressure values
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#e0e0e0' // Light text for the x-axis title
+                            },
+                            grid: {
+                                color: '#4a4a4a' // Light grey grid lines
+                            },
+                            ticks: {
+                                color: '#e0e0e0' // Light text for x-axis labels
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Pressure (MPa)',
+                                color: '#e0e0e0' // Light text for the y-axis title
+                            },
+                            grid: {
+                                color: '#4a4a4a' // Light grey grid lines
+                            },
+                            ticks: {
+                                color: '#e0e0e0' // Light text for y-axis labels
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0' // Light text for legend labels
+                            }
+                        }
+                    }
+                }
+            });
+
+            temperatureChart = new Chart(temperatureCtx, {
+                type: 'line',
+                data: {
+                    labels: [], // Timestamps
+                    datasets: [{
+                        label: 'Temperature (K)',
+                        data: [], // Temperature values
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#e0e0e0' // Light text for the x-axis title
+                            },
+                            grid: {
+                                color: '#4a4a4a' // Light grey grid lines
+                            },
+                            ticks: {
+                                color: '#e0e0e0' // Light text for x-axis labels
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Temperature (K)',
+                                color: '#e0e0e0' // Light text for the y-axis title
+                            },
+                            grid: {
+                                color: '#4a4a4a' // Light grey grid lines
+                            },
+                            ticks: {
+                                color: '#e0e0e0' // Light text for y-axis labels
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0' // Light text for legend labels
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Initialize everything when the page loads
+        window.onload = function () {
+            if (!fetchInterval) { // Ensure setInterval is called only once
+                createCharts();
+                fetchFridgeData();
+                fetchInterval = setInterval(fetchFridgeData, 1000); // Update data every second
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Fridge: {{ fridge_id }}</h1>
+    <div>
+        <h2>Pressure at Compressor Outlet Over Time</h2>
+        <canvas id="pressureChart" width="400" height="200"></canvas>
+    </div>
+    <div>
+        <h2>Temperature at Compressor Outlet Over Time</h2>
+        <canvas id="temperatureChart" width="400" height="200"></canvas>
+    </div>
+</body>
+</html>

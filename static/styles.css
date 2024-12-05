@@ -1,0 +1,66 @@
+/* General Body Styling */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #1e1e2f; /* Dark background */
+    color: #e0e0e0; /* Light text for contrast */
+}
+
+/* Header */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-top: 20px;
+    color: #4caf50; /* Green for a digital, modern feel */
+}
+
+/* List Styling */
+ul {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0;
+    text-align: center;
+}
+
+li {
+    margin: 15px 0; /* Add space between items */
+    font-size: 1.5rem; /* Increase font size */
+}
+
+a {
+    text-decoration: none; /* Remove underline */
+    color: #4caf50; /* Green links */
+    font-weight: bold;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+a:hover {
+    color: #ffffff; /* White on hover */
+    background-color: #4caf50; /* Green background */
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+a:visited {
+    color: #ffffff; /* Orange for visited links */
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+    color: #888; /* Subtle footer color */
+    font-size: 0.9rem;
+    background-color: #2a2a3e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    li {
+        font-size: 1.2rem;
+    }
+}
